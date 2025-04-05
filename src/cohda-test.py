@@ -6,12 +6,16 @@ import time
 from fabric import ThreadingGroup as Group
 
 
+# Username for device login
 user = "user"
+
+# Devices under test (DUTs)
 hosts = {
     "fe80::6e5:48ff:fe50:c78": "obu1",
     "fe80::6e5:48ff:fe50:cb8": "obu2",
     "fe80::6e5:48ff:fe30:710": "rsu",
 }
+
 exp_duration = 5 * 60
 num_runs = 5
 binary = "/mnt/rw/example1609/rc.example1609"
