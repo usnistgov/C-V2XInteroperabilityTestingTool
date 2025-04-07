@@ -37,5 +37,5 @@ and collect C-V2X packet traces from commercial On-Board Units (OBUs) and Road-S
 4. Run the tool.
 
     ```shell
-    pdm run src/cohda-test.py
+    pdm run src/cohda-test.py --help
     ```

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Cellular Vehicle-to-Everything (C-V2X) Interoperability Testing Tool"
 authors = [
     {name = "Davide Pesavento", email = "davide.pesavento@nist.gov"},
+    {name = "Eugene Song", email = "eugene.song@nist.gov"},
 ]
 dependencies = [
     "fabric>=3.2.2",

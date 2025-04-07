@@ -10,7 +10,7 @@ from fabric import ThreadingGroup as Group
 hosts = {
     "fe80::6e5:48ff:fe50:c78": "obu1",
     "fe80::6e5:48ff:fe50:cb8": "obu2",
-    "fe80::6e5:48ff:fe30:710": "rsu",
+    "fe80::6e5:48ff:fe30:710": "rsu1",
 }
 
 
