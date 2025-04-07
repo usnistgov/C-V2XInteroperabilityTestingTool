@@ -55,6 +55,7 @@ obus = Group(*[host for host, name in hosts.items() if name in args.obu], user=a
 print("OBUs:", obus)
 rsus = Group(*[host for host, name in hosts.items() if name in args.rsu], user=args.user)
 print("RSUs:", rsus)
+print()
 if not obus and not rsus:
     parser.exit(message="No known devices selected, exiting.\n")
 
@@ -104,6 +105,6 @@ for i in range(args.repeat):
         for conn in obus + rsus:
             conn.get(
                 f"/tmp/log/current/{f}",
-                local="/".join([args.directory, timestamp, i, hosts[conn.host], f]),
+                local=f"{args.directory}/{timestamp}/{i}/{hosts[conn.host]}/{f}",
                 preserve_mode=False,
             )
