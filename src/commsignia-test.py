@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import os
 from fabric import ThreadingGroup as Group
 from fabric.exceptions import GroupException
 from invoke.exceptions import CommandTimedOut
@@ -22,6 +23,11 @@ def print_exit_status(results) -> None:
 
 def print_progress(i: int, msg: str) -> None:
     print(f"\n[{i+1}/{args.repeat}] {msg}...")
+
+
+def scp_progress(filename, size, sent, peername) -> None:
+    ratio = float(sent) / float(size)
+    print(f"  {filename.decode()} from {peername[0]} ==> {ratio:6.1%}")
 
 
 def positive_int(arg):
@@ -87,10 +93,9 @@ for i in range(args.repeat):
         continue
 
     print_progress(i, "Transferring files")
-    print(f"  {filename}")
+    from scp import SCPClient
     for conn in all_devs:
-        conn.get(
-            f"/tmp/{filename}",
-            local=f"{args.directory}/{hosts[conn.host]}_{timestamp}",
-            preserve_mode=False,
-        )
+        local_path = f"{args.directory}/{timestamp}/{hosts[conn.host]}"
+        os.makedirs(local_path, exist_ok=True)
+        with SCPClient(conn.transport, progress4=scp_progress) as client:
+            client.get(f"/tmp/{filename}", local_path=local_path)
