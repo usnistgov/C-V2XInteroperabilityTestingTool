@@ -7,6 +7,7 @@ from fabric import ThreadingGroup as Group
 
 
 # Devices under test (DUTs)
+# Hardcoded for now to simplify testing
 hosts = {
     "fe80::6e5:48ff:fe50:c78": "obu1",
     "fe80::6e5:48ff:fe50:cb8": "obu2",
@@ -24,7 +25,7 @@ def print_progress(i: int, msg: str) -> None:
     print(f"\n[{i+1}/{args.repeat}] {msg}...")
 
 
-def positive_int(arg):
+def positive_int(arg) -> int:
     value = int(arg)
     if value <= 0:
         raise TypeError

@@ -9,6 +9,7 @@ from invoke.exceptions import CommandTimedOut
 
 
 # Devices under test (DUTs)
+# Hardcoded for now to simplify testing
 hosts = {
     "192.168.0.74": "ob4",
     "192.168.0.64": "rs4",
@@ -25,12 +26,14 @@ def print_progress(i: int, msg: str) -> None:
     print(f"\n[{i+1}/{args.repeat}] {msg}...")
 
 
-def scp_progress(filename, size, sent, peername) -> None:
+def scp_progress(filename: bytes | str, size: int, sent: int, peername: tuple[str, int]) -> None:
+    if isinstance(filename, bytes):
+        filename = filename.decode(errors="replace")
     ratio = float(sent) / float(size)
-    print(f"  {filename.decode()} from {peername[0]} ==> {ratio:6.1%}")
+    print(f"  {filename} from {peername[0]} ==> {ratio:6.1%}")
 
 
-def positive_int(arg):
+def positive_int(arg) -> int:
     value = int(arg)
     if value <= 0:
         raise TypeError
