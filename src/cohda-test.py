@@ -22,7 +22,7 @@ def print_exit_status(results) -> None:
 
 
 def print_progress(i: int, msg: str) -> None:
-    print(f"\n[{i+1}/{args.repeat}] {msg}...")
+    print(f"\n[{i+1}/{args.repeat}] {msg}")
 
 
 def positive_int(arg) -> int:
@@ -39,12 +39,16 @@ parser.add_argument("-n", "--repeat", type=positive_int, default=1,
                     help="how many times to repeat the test (default: %(default)s)")
 parser.add_argument("-t", "--duration", type=positive_int, default=60,
                     help="duration of each test repetition, in seconds (default: %(default)s)")
-parser.add_argument("-u", "--user", default="user",
-                    help="username for device login (default: %(default)s)")
 parser.add_argument("-c", "--no-copy", action="store_true",
                     help="skip copying the test results to the local machine")
 parser.add_argument("-d", "--directory", default="results",
                     help="name of the local directory where to store the test results (default: %(default)s)")
+parser.add_argument("-k", "--keep", action="store_true",
+                    help="do not delete the test results from the device after copying them")
+parser.add_argument("-u", "--user", default="user",
+                    help="username for device login (default: %(default)s)")
+parser.add_argument("-v", "--verbose", action="store_true",
+                    help="enable verbose output")
 args = parser.parse_args()
 
 if not args.obu and not args.rsu:
@@ -84,28 +88,33 @@ files_to_copy = frozenset(
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 for i in range(args.repeat):
-    print_progress(i, "Starting test")
+    print_progress(i, "Starting test...")
     results = obus.sudo(f"{binary} start obu", in_stream=False)
     results |= rsus.sudo(f"{binary} start rsu", in_stream=False)
     print_exit_status(results)
 
-    print_progress(i, f"Waiting {args.duration} seconds")
+    print_progress(i, f"Waiting {args.duration} seconds...")
     time.sleep(args.duration)
 
-    print_progress(i, "Stopping test")
+    print_progress(i, "Stopping test...")
     results = rsus.sudo(f"{binary} stop rsu", in_stream=False)
     results |= obus.sudo(f"{binary} stop obu", in_stream=False)
     print_exit_status(results)
 
-    if args.no_copy:
-        continue
+    if not args.no_copy:
+        print_progress(i, "Transferring files...")
+        for f in files_to_copy:
+            if args.verbose:
+                print(f"  {f}")
+            for conn in all_devs:
+                conn.get(
+                    f"/tmp/log/current/{f}",
+                    local=f"{args.directory}/{timestamp}/{i}/{hosts[conn.host]}/{f}",
+                    preserve_mode=False,
+                )
+        if not args.keep:
+            rm_opts = "-frv" if args.verbose else "-fr"
+            results = all_devs.sudo(f"rm {rm_opts} $(readlink -en /tmp/log/current)", in_stream=False)
+            print_exit_status(results)
 
-    print_progress(i, "Transferring files")
-    for f in files_to_copy:
-        print(f"  {f}")
-        for conn in all_devs:
-            conn.get(
-                f"/tmp/log/current/{f}",
-                local=f"{args.directory}/{timestamp}/{i}/{hosts[conn.host]}/{f}",
-                preserve_mode=False,
-            )
+    print_progress(i, "Done.")
