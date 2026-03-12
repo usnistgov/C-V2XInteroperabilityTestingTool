@@ -80,10 +80,10 @@ print()
 for i in range(args.repeat):
     print_progress(i, f"Running test for {args.duration} seconds")
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"c2p_{timestamp}.pcap"
+    filename = f"comm_{timestamp}.pcap"
     try:
         results = all_devs.run(
-            f"tcpdump -pi lo -w /tmp/{filename} port 7943",
+            f"tcpdump -i lo -p -U -w /tmp/{filename} port 7943",
             hide=True,
             in_stream=False,
             timeout=args.duration)

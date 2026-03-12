@@ -74,7 +74,7 @@ for i in range(args.repeat):
     filename = f"kap_{timestamp}.pcap"
     try:
         results = all_devs.sudo(
-            f"tcpdump -i rmnet_data1 -w /tmp/{filename}",
+            f"tcpdump -i rmnet_data1 -U -w /tmp/{filename}",
             hide=True,
             in_stream=False,
             timeout=args.duration)
